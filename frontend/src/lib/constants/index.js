@@ -1,1 +1,1 @@
-export const APP_NAME = import.meta.env.VITE_APP_NAME;
+export const APP_NAME = process.env.VITE_APP_NAME || "PayNextShop";

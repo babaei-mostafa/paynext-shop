@@ -3,10 +3,13 @@ import colors from "colors";
 import dotenv from "dotenv";
 import cors from "cors";
 import products from "./data/products.js";
+import connectDB from "./config/db.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
+
+connectDB(); // Connect to MongoDB
 
 const app = express();
 
