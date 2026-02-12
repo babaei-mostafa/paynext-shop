@@ -8,7 +8,10 @@ export const router = createBrowserRouter([
     path: "/",
     Component: RootLayout,
     children: [
-      { index: true, Component: HomeScreen },
+      {
+        index: true,
+        Component: HomeScreen,
+      },
       {
         path: "/product",
         children: [{ path: ":id", Component: ProductScreen }],
