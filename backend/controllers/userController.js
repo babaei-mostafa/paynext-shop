@@ -1,10 +1,55 @@
+import jwt from "jsonwebtoken";
 import asyncHandler from "../middleware/asyncHandler.js";
+import ErrorResponse from "../lib/errorResponse.js";
+import User from "../models/userModel.js";
 
 // @desc   Login user & get token
 // @route  POST /api/users/login
 // @access Public
-export const loginUser = asyncHandler(async (req, res) => {
-  res.send("login user");
+export const loginUser = asyncHandler(async (req, res, next) => {
+  let { email, password } = req.body;
+
+  // Validate email & password
+  if (!email || !password) {
+    return next(new ErrorResponse("Please provide an email and password", 400));
+  }
+
+  if (typeof email === "string") {
+    email = email.toLowerCase().trim();
+  } else {
+    email = "";
+  }
+
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user) {
+    return next(new ErrorResponse("Invalid credentials", 401));
+  }
+
+  const isMatch = await user.matchPassword(password);
+
+  if (!isMatch) {
+    return next(new ErrorResponse("Invalid credentials", 401));
+  }
+
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "30d",
+  });
+
+  // Set JWT as HTTP-Only cookie
+  res.cookie("jwt", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+    sameSite: "strict",
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  });
+
+  res.json({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    isAdmin: user.isAdmin,
+  });
 });
 
 // @desc   Resister user

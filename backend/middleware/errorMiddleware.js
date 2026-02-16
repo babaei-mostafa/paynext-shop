@@ -5,8 +5,8 @@ const notFound = (req, res, next) => {
 };
 
 const errorHandler = (err, req, res, next) => {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  let message = err.message;
+  let statusCode = err.statusCode || res.statusCode || 500;
+  let message = err.message || "Server Error";
 
   // Check for Mongoose bad ObjectId
   if (err.name === "CastError" && err.kind === "ObjectId") {

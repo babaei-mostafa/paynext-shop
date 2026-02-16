@@ -2,9 +2,10 @@ import express from "express";
 import colors from "colors";
 import dotenv from "dotenv";
 import cors from "cors";
+import bodyParser from "body-parser";
 import connectDB from "./config/db.js";
 import productRoutes from "./routes/productRoutes.js";
-import userRoutes from "./routes/userRoutes.js"
+import userRoutes from "./routes/userRoutes.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 import { CLIENT_URLS } from "./lib/constants/index.js";
 
@@ -15,6 +16,10 @@ const PORT = process.env.PORT || 5000;
 connectDB(); // Connect to MongoDB
 
 const app = express();
+
+// Body parser middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration:
 // Allows only approved frontend origins and enables credentials support
