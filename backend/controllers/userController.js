@@ -2,12 +2,13 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "../middleware/asyncHandler.js";
 import ErrorResponse from "../lib/errorResponse.js";
 import User from "../models/userModel.js";
+import sendTokenResponse from "../lib/sendTokenResponse.js";
 
 // @desc   Login user & get token
 // @route  POST /api/users/login
 // @access Public
 export const loginUser = asyncHandler(async (req, res, next) => {
-  let { email, password } = req.body;
+  let { email, password } = req.body || {};
 
   // Validate email & password
   if (!email || !password) {
@@ -32,31 +33,36 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("Invalid credentials", 401));
   }
 
-  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
-
-  // Set JWT as HTTP-Only cookie
-  res.cookie("jwt", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
-    sameSite: "strict",
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  });
-
-  res.json({
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    isAdmin: user.isAdmin,
-  });
+  return sendTokenResponse(user, 200, res, "You logged in successfully");
 });
 
 // @desc   Resister user
 // @route  POST /api/users
 // @access Public
-export const registerUser = asyncHandler(async (req, res) => {
-  res.send("register user");
+export const registerUser = asyncHandler(async (req, res, next) => {
+  let { name, email, password } = req.body || {};
+
+  if (email) {
+    email = email.toLowerCase().trim();
+  }
+
+  const existing = await User.findOne({ email });
+
+  if (existing) {
+    return next(new ErrorResponse("Email already exists", 400));
+  }
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+  });
+
+  if (user) {
+    return sendTokenResponse(user, 201, res, "User registered successfully");
+  } else {
+    return next(new Error("Invalid user data", 400));
+  }
 });
 
 // @desc   Logout user

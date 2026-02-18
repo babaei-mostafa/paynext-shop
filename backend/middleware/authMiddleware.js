@@ -28,7 +28,12 @@ export const protect = asyncHandler(async (req, res, next) => {
 
     next();
   } catch (error) {
-    return next("Not authorized to access this route, token failed", 401);
+    return next(
+      new ErrorResponse(
+        "Not authorized to access this route, token failed",
+        401,
+      ),
+    );
   }
 });
 
@@ -36,6 +41,6 @@ export const admin = (req, res, next) => {
   if (req.user.isAdmin) {
     next();
   } else {
-    return next(ErrorResponse("Not authorized as admin", 403));
+    return next(new ErrorResponse("Not authorized as admin", 403));
   }
 };
