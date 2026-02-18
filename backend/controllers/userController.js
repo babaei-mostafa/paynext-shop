@@ -33,7 +33,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("Invalid credentials", 401));
   }
 
-  return sendTokenResponse(user, 200, res, "You logged in successfully");
+  return sendTokenResponse(user, 200, res, "Logged in successfully");
 });
 
 // @desc   Resister user
@@ -81,14 +81,34 @@ export const logoutUser = asyncHandler(async (req, res) => {
 // @route  GET /api/users/profile
 // @access Private
 export const getUserProfile = asyncHandler(async (req, res) => {
-  res.send("get user profile");
+  const user = await User.findById({ _id: req.user._id });
+  if (user) {
+    res.json(user);
+  } else {
+    next(new ErrorResponse("User not found", 404));
+  }
 });
 
 // @desc   Update user profile
 // @route  PUT /api/users/profile
 // @access Private
 export const updateUserProfile = asyncHandler(async (req, res) => {
-  res.send("Update user profile");
+  const user = await User.findById({ _id: req.user._id });
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+
+    const updatedUser = await user.save();
+
+    res.status(200).json(updatedUser);
+  } else {
+    return next(new ErrorResponse("User not found", 404));
+  }
 });
 
 // @desc   Get users
