@@ -15,7 +15,7 @@ const sendTokenResponse = (user, statusCode, res, message) => {
     options.secure = true;
   }
 
-  res.status(statusCode).cookie("jwt", token, options).json({ message, token });
+  res.status(statusCode).cookie("jwt", token, options).json({ message, token, user });
 };
 
 export default sendTokenResponse

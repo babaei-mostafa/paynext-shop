@@ -4,6 +4,7 @@ import HomeScreen from "../screens/HomeScreen";
 import ProductScreen from "../screens/ProductScreen";
 import CartScreen from "../screens/CartScreen";
 import LoginScreen from "../screens/LoginScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
         path: "/product",
         children: [{ path: ":id", Component: ProductScreen }],
       },
+      { path: "/profile", component: ProfileScreen },
       {
         path: "/cart",
         Component: CartScreen,
